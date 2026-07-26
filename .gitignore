@@ -37,6 +37,17 @@ supabase/.temp/
 # =========================
 data/users.json
 data/profiles.json
+data/friendRequests.json
+data/undercoverMatches.json
+data/smashPassPhotos.json
+data/smashPassVotes.json
+data/suggestions.json
+
+# =========================
+# Uploads locaux (Smash or Pass, repli sans Supabase Storage)
+# =========================
+server/uploads/*
+!server/uploads/.gitkeep
 
 
 # =========================
@@ -64,3 +75,5 @@ Thumbs.db
 *.tmp
 *.swp
 *.bak
+
+

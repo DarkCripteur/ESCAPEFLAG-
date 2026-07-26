@@ -1,0 +1,22 @@
+/*
+ * Tailwind v4, importé sans le layer "preflight" (le reset global) pour ne pas
+ * casser le CSS artisanal existant (App.css / index.css). Tailwind n'est utilisé
+ * qu'en classes utilitaires sur le code ajouté à partir de la Phase 1 (boutons
+ * animés, nouvelles pages) — l'UI existante continue de fonctionner telle quelle.
+ */
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+@theme {
+  --color-ink: #22233c;
+  --color-muted: #767890;
+  --color-line: #e6e1d9;
+  --color-paper: #fffefa;
+  --color-purple: #7253db;
+  --color-lilac: #f0ebff;
+  --color-orange: #f4a13a;
+  --color-bg: #f7f4ed;
+
+  --font-display: 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
