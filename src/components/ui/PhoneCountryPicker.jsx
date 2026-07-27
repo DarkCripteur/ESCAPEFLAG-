@@ -5,6 +5,19 @@ import { countries } from '../../data/countries'
 import { countryFlagEmoji } from '../../utils/countryFlag'
 import { detectCountryFromLocale } from '../../utils/detectCountry'
 
+// Pays pré-sélectionné par défaut (public principalement africain/sénégalais de
+// l'app). La détection par langue du navigateur (utils/detectCountry.js) se trompe
+// souvent en pratique — un téléphone réglé en "fr-FR" ne veut pas dire un utilisateur
+// en France — donc elle ne sert plus que si elle trouve explicitement un pays de CE
+// continent ; sinon ce pays par défaut est utilisé plutôt qu'un pays européen erroné.
+// TODO(section 19): pays par défaut à personnaliser si besoin.
+const DEFAULT_ISO2 = 'SN'
+const AFRICAN_ISO2 = new Set([
+  'DZ', 'AO', 'BJ', 'BW', 'BF', 'BI', 'CV', 'CM', 'CF', 'TD', 'KM', 'CG', 'CD', 'CI', 'DJ', 'EG', 'GQ', 'ER', 'SZ',
+  'ET', 'GA', 'GM', 'GH', 'GN', 'GW', 'KE', 'LS', 'LR', 'LY', 'MG', 'MW', 'ML', 'MR', 'MU', 'MA', 'MZ', 'NA', 'NE',
+  'NG', 'RW', 'ST', 'SN', 'SC', 'SL', 'SO', 'ZA', 'SS', 'SD', 'TZ', 'TG', 'TN', 'UG', 'ZM', 'ZW',
+])
+
 export function PhoneCountryPicker({ value, onChange }) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -17,10 +30,9 @@ export function PhoneCountryPicker({ value, onChange }) {
   useEffect(() => {
     if (detectedOnceRef.current || value) return
     detectedOnceRef.current = true
-    // TODO(section 19): pays de repli si la détection échoue, à personnaliser.
-    const fallback = countries.find((c) => c.iso2 === 'SN')
-    const detected = detectCountryFromLocale(countries) || fallback
-    if (detected) onChange(detected)
+    const fallback = countries.find((c) => c.iso2 === DEFAULT_ISO2)
+    const detected = detectCountryFromLocale(countries)
+    onChange(detected && AFRICAN_ISO2.has(detected.iso2) ? detected : fallback)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

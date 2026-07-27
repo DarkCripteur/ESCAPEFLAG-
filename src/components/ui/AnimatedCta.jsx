@@ -81,11 +81,18 @@ export function AnimatedCta({ children = 'C’est parti !', type = 'button', dis
 }
 
 const StyledWrapper = styled.div`
-  display: inline-block;
+  /* [MOBILE] Largeur fixe à 170px d'origine : trop étroite pour "Créer mon compte",
+     le texte se coupait en deux lignes dans le rond de 125px qui lui restait (visible
+     sur mobile réel). La largeur s'adapte maintenant au contenu (min-width conservée
+     pour l'esthétique du bouton), et le texte ne passe plus jamais à la ligne. */
+  display: inline-flex;
+  max-width: 100%;
 
   .Btn-Container {
     display: flex;
-    width: 170px;
+    width: auto;
+    min-width: 170px;
+    max-width: 100%;
     height: fit-content;
     background-color: #1d2129;
     border-radius: 40px;
@@ -111,14 +118,17 @@ const StyledWrapper = styled.div`
     flex-shrink: 0;
   }
   .text {
-    width: calc(170px - 45px);
+    flex: 1 1 auto;
+    min-width: 0;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 1.1em;
-    letter-spacing: 1.2px;
+    font-size: 1em;
+    letter-spacing: 0.6px;
+    white-space: nowrap;
+    padding: 0 16px;
   }
   .icon-Container svg {
     transition-duration: 1.5s;

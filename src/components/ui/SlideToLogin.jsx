@@ -13,8 +13,12 @@ import { cn } from '../../utils/cn'
 const DRAG_CONSTRAINTS = { left: 0, right: 155 }
 const DRAG_THRESHOLD = 0.9
 
+// [MOBILE] 12rem (192px) d'origine : le label centré sur toute la largeur passait
+// derrière le curseur circulaire (côté gauche), masquant les premières lettres
+// (visible sur mobile réel). Le bouton est élargi et le label n'est plus centré que
+// dans l'espace libre à droite du curseur, pour ne plus jamais chevaucher.
 const BUTTON_STATES = {
-  initial: { width: '12rem' },
+  initial: { width: '15rem' },
   completed: { width: '8rem' },
 }
 
@@ -104,7 +108,7 @@ export function SlideToLogin({ onConfirm, label = 'Cliquez pour vous connecter',
         <motion.div style={{ width: adjustedWidth }} className="absolute inset-y-0 left-0 z-0 rounded-full bg-purple" />
       )}
       {!completed && (
-        <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-xs font-semibold tracking-wide text-ink/70">
+        <span className="pointer-events-none absolute inset-y-0 left-11 right-2 flex items-center justify-center whitespace-nowrap text-xs font-semibold tracking-normal text-ink/70">
           {label}
         </span>
       )}
