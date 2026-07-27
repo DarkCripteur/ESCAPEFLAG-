@@ -1,0 +1,27 @@
+# Blueprint Render pour déployer l'API Express séparément du frontend Vercel
+# (voir CLAUDE.md, section "Déploiement (Vercel + separate API host)").
+# Utilisation : sur render.com -> "New +" -> "Blueprint" -> sélectionner ce dépôt.
+# Render lit ce fichier et pré-remplit le service ; il ne reste qu'à renseigner
+# les valeurs des variables marquées "sync: false" (secrets, jamais commités).
+services:
+  - type: web
+    name: escapeflag-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run start
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: CLIENT_URL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        value: onboarding@resend.dev
+      - key: MAIL_TO
+        value: fustelamio2208@gmail.com
