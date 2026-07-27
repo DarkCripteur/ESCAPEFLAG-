@@ -1,18 +1,16 @@
-// Bandeau "salle connectée" + cartes progression/score, affiché sur toutes les vues
-// (comportement d'origine : ce n'est pas propre à la page Jouer).
+// Cartes progression/score + info question en cours, affichées sur toutes les vues
+// (comportement d'origine : ce n'est pas propre à la page Jouer). Le statut "salle
+// connectée" vit désormais dans Header/.nav-pill (pastille fusionnée avec la nav).
 import { useAuth } from '../../hooks/useAuth'
 import { useQuizGame } from '../../hooks/useQuizGame'
 
 export function GameStatusBar() {
-  const { players, serverOnline, profile } = useAuth()
+  const { profile } = useAuth()
   const { question, progress, errors, availableQuestions } = useQuizGame()
 
   return (
     <>
       <section className="game-meta">
-        <div className="room-title">
-          <span className={serverOnline ? 'live-dot' : 'offline-dot'} /> {serverOnline ? 'SALLE CONNECTÉE' : 'SALLE HORS LIGNE'} <b>•</b> {players.length} JOUEUR{players.length !== 1 ? 'S' : ''}
-        </div>
         <div className="puzzle-tag"><span>QUESTION {String(question + 1).padStart(2, '0')}</span> <b>•</b> CULTURE GÉNÉRALE</div>
       </section>
 

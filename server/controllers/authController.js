@@ -2,7 +2,7 @@
 // interne : on résout pseudo → e-mail via la colonne `profiles.username` (ou
 // `users.json` en mode local) avant d'appeler signInWithPassword.
 import crypto from 'crypto'
-import { configured, supabase, authClient } from '../services/supabaseClient.js'
+import { configured, supabase, authClient, queryWithSchemaCacheRetry } from '../services/supabaseClient.js'
 import { readJsonFile, writeJsonFile } from '../services/dataStore.js'
 import { privateProfile } from '../services/profileSerializers.js'
 import { loginSchema, registerSchema, resendSchema } from '../validators/authValidators.js'
@@ -14,36 +14,48 @@ export async function login(req, res, next) {
 
     // 1. Essai de connexion avec Supabase
     if (configured && supabase && authClient) {
-      try {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .ilike('username', username)
-          .maybeSingle()
+      const { data: profile, error: profileError } = await queryWithSchemaCacheRetry(() =>
+        supabase.from('profiles').select('*').ilike('username', username).maybeSingle()
+      )
 
-        if (profile?.banned) {
+      if (profileError) {
+        // Lecture du profil elle-même en échec (ex: souci ponctuel de schema cache
+        // PostgREST déjà observé sur ce projet) : on ne sait pas si le compte existe,
+        // on retente donc via le repli local plutôt que d'affirmer à tort quoi que
+        // ce soit sur ce pseudo.
+        console.warn('Lecture du profil Supabase impossible, repli local...', profileError.message)
+      } else if (profile) {
+        // Le pseudo existe bel et bien côté Supabase : à partir d'ici, Supabase est
+        // la source de vérité pour CE compte. Avant ce correctif, une erreur
+        // inattendue plus bas (ex: e-mail manquant sur le profil, réponse Supabase
+        // imprévue) était avalée par un catch générique qui laissait le code
+        // retomber sur users.json local — où ce compte Supabase n'existe évidemment
+        // pas — renvoyant à tort "Le compte n'existe pas." à un joueur qui venait
+        // pourtant de créer ce compte avec succès. On échoue maintenant franchement
+        // (500) plutôt que de mentir sur l'existence du compte.
+        if (profile.banned) {
           return res.status(403).json({ message: 'Ce compte a été banni.' })
         }
-
-        if (profile?.email) {
-          const { data, error } = await authClient.auth.signInWithPassword({ email: profile.email, password: input.password })
-          if (error) {
-            if (error.message.toLowerCase().includes('credentials') || error.status === 400) {
-              return res.status(401).json({ message: 'Le mot de passe est incorrect.' })
-            }
-            throw error
-          }
-
-          if (data.session && data.user) {
-            return res.json({ user: privateProfile(profile), session: data.session })
-          }
+        if (!profile.email) {
+          throw new Error(`Profil Supabase incomplet pour "${username}" : e-mail manquant.`)
         }
-      } catch (err) {
-        console.warn('Echec connexion Supabase, repli local...', err.message)
+
+        const { data, error } = await authClient.auth.signInWithPassword({ email: profile.email, password: input.password })
+        if (error) {
+          if (error.message.toLowerCase().includes('credentials') || error.status === 400) {
+            return res.status(401).json({ message: 'Le mot de passe est incorrect.' })
+          }
+          throw error
+        }
+
+        if (data.session && data.user) {
+          return res.json({ user: privateProfile(profile), session: data.session })
+        }
+        throw new Error('Réponse Supabase inattendue lors de la connexion.')
       }
     }
 
-    // 2. Repli Local
+    // 2. Repli Local (Supabase non configuré, ou pseudo introuvable côté Supabase)
     const users = readJsonFile('users.json')
     const user = users.find((u) => (u.username || '').toLowerCase() === username.toLowerCase())
     if (!user) {
@@ -83,7 +95,9 @@ export async function register(req, res, next) {
     // 1. Tenter Supabase
     if (configured && supabase && authClient) {
       try {
-        const { data: existing } = await supabase.from('profiles').select('id').ilike('username', input.username).maybeSingle()
+        const { data: existing } = await queryWithSchemaCacheRetry(() =>
+          supabase.from('profiles').select('id').ilike('username', input.username).maybeSingle()
+        )
         if (existing) {
           return res.status(400).json({ message: 'Ce pseudo est déjà pris.' })
         }
