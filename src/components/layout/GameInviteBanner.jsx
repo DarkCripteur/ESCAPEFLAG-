@@ -1,6 +1,7 @@
 // [UNDERCOVER] Bannière app-wide pour les invitations à rejoindre un salon en ligne
 // par pseudo (section 6) — affichée où que le joueur se trouve, pas seulement sur
 // l'onglet Undercover, puisqu'une invitation peut arriver à tout moment.
+import { Gamepad2 } from 'lucide-react'
 import { useUndercover } from '../../hooks/useUndercover'
 
 export function GameInviteBanner() {
@@ -16,7 +17,7 @@ export function GameInviteBanner() {
           className="goal-card accent"
           style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}
         >
-          <span style={{ fontSize: '20px' }}>🎮</span>
+          <span style={{ display: 'flex' }}><Gamepad2 size={20} /></span>
           <p style={{ margin: 0, flex: 1 }}>
             <b>{invite.senderName}</b> vous invite à rejoindre le salon Undercover <b>{invite.roomId}</b>.
           </p>

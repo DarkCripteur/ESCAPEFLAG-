@@ -1,4 +1,6 @@
 // [UNDERCOVER] Attribution automatique ou manuelle des rôles (section 6).
+import { Dices, Hand } from 'lucide-react'
+
 const ROLE_LABELS = { civil: 'Civil', undercover: 'Undercover', mrwhite: 'M. White' }
 
 export function RoleAssignmentPanel({
@@ -9,8 +11,8 @@ export function RoleAssignmentPanel({
   return (
     <div className="mb-2">
       <div className="auth-switch" style={{ marginBottom: '12px' }}>
-        <button type="button" className={assignMode === 'auto' ? 'selected' : ''} onClick={() => onAssignModeChange('auto')}>🎲 Automatique</button>
-        <button type="button" className={assignMode === 'manual' ? 'selected' : ''} onClick={() => onAssignModeChange('manual')}>✋ Manuelle</button>
+        <button type="button" className={assignMode === 'auto' ? 'selected' : ''} onClick={() => onAssignModeChange('auto')} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Dices size={14} /> Automatique</button>
+        <button type="button" className={assignMode === 'manual' ? 'selected' : ''} onClick={() => onAssignModeChange('manual')} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Hand size={14} /> Manuelle</button>
       </div>
 
       {assignMode === 'auto' ? (

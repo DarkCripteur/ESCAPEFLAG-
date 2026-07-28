@@ -8,10 +8,10 @@ import { UPLOADS_DIR } from './services/uploadService.js'
 
 export function createApp() {
   const app = express()
-  // [SUGGESTIONS] Fait confiance au premier saut de proxy (Render/Vercel/etc. placent
-  // l'appli derrière un seul reverse proxy) pour que `req.ip` reflète la vraie adresse
-  // du client via X-Forwarded-For, plutôt que l'IP interne du proxy — utilisé pour
-  // l'e-mail de suggestion (section 11) et par express-rate-limit ci-dessous.
+  // Fait confiance au premier saut de proxy (Render/Vercel/etc. placent l'appli
+  // derrière un seul reverse proxy) pour que `req.ip` reflète la vraie adresse du
+  // client via X-Forwarded-For, plutôt que l'IP interne du proxy — utilisé par
+  // express-rate-limit ci-dessous pour limiter correctement par IP réelle.
   app.set('trust proxy', 1)
 
   // [VERCEL] CLIENT_URL accepte une liste séparée par des virgules (ex. domaine de

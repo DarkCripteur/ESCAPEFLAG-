@@ -9,6 +9,7 @@ import { useTheme } from '../../hooks/useTheme'
 import { useToast } from '../../hooks/useToast'
 import { AuthOverlay } from '../../components/layout/AuthOverlay'
 import { AdminPage } from './AdminPage'
+import { ThemeSwitch } from '../../components/ui/ThemeSwitch'
 
 export function AdminLayout() {
   const { user, isAdmin } = useAuth()
@@ -21,16 +22,14 @@ export function AdminLayout() {
 
   return (
     <main className={`app-shell ${theme === 'dark' ? 'theme-dark' : ''}`}>
-      <header className="topbar">
+      <header className="topbar topbar-admin">
         <span className="brand" aria-label="Escape Flag Admin">
           <span className="brand-mark"><i /><i /><i /><b>★</b></span>
           <span>ESCAPE<span>FLAG</span></span>
         </span>
         <span className="pill">Console admin</span>
         <div className="top-actions">
-          <button type="button" className="theme-toggle" onClick={toggleTheme} aria-label="Changer de thème">
-            {theme === 'light' ? '☾' : '☀'}
-          </button>
+          <ThemeSwitch theme={theme} onToggle={toggleTheme} />
           {user && (
             <>
               <Link to="/" className="secondary small" style={{ textDecoration: 'none' }}>← Retour au site</Link>

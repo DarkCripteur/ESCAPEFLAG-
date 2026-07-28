@@ -64,7 +64,7 @@ export function QuizProvider({ children }) {
       window.localStorage.setItem(badgeStorageKey, JSON.stringify(updated))
       newlyEarned.forEach((id) => {
         const badge = badgeDefinitions.find((b) => b.id === id)
-        if (badge) notify(`🏅 Nouveau badge : ${badge.label} !`)
+        if (badge) notify(`Nouveau badge : ${badge.label} !`)
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

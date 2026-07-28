@@ -49,9 +49,9 @@ export function ProfilPage() {
                 <span
                   key={badge.id}
                   title={badge.description}
-                  style={{ opacity: earned ? 1 : 0.35, filter: earned ? 'none' : 'grayscale(1)' }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', opacity: earned ? 1 : 0.35, filter: earned ? 'none' : 'grayscale(1)' }}
                 >
-                  {badge.icon} {badge.label}
+                  <badge.icon size={13} /> {badge.label}
                 </span>
               )
             })}

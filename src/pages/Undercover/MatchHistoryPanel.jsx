@@ -1,4 +1,6 @@
 // [UNDERCOVER] Historique des parties (section 6).
+import { Globe, Monitor } from 'lucide-react'
+
 export function MatchHistoryPanel({ matches }) {
   return (
     <div>
@@ -8,7 +10,7 @@ export function MatchHistoryPanel({ matches }) {
           const date = new Date(match.createdAt || match.created_at)
           return (
             <div className="player" key={match.id} style={{ height: 'auto', padding: '8px 0' }}>
-              <span style={{ fontSize: '18px' }}>{match.mode === 'online' ? '🌐' : '🖥️'}</span>
+              <span style={{ display: 'flex' }}>{match.mode === 'online' ? <Globe size={18} /> : <Monitor size={18} />}</span>
               <div>
                 <b>Victoire : {match.winner}</b>
                 <small>{match.civilWord || match.civil_word} / {match.undercoverWord || match.undercover_word} • {date.toLocaleDateString('fr-FR')}</small>

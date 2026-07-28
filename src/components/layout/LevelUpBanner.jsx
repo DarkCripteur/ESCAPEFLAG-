@@ -1,6 +1,7 @@
 // [QUIZ] Animation « Gain de niveau » (section 7), affichée par-dessus l'app le temps
 // de quelques secondes puis rejouable en cliquant n'importe où.
 import { AnimatePresence, motion } from 'framer-motion'
+import { PartyPopper } from 'lucide-react'
 import { useQuizGame } from '../../hooks/useQuizGame'
 
 export function LevelUpBanner() {
@@ -24,11 +25,10 @@ export function LevelUpBanner() {
             transition={{ type: 'spring', stiffness: 260, damping: 18 }}
           >
             <motion.span
-              className="text-6xl"
               animate={{ rotate: [0, -10, 10, -10, 0] }}
               transition={{ duration: 0.8, repeat: 1 }}
             >
-              🎉
+              <PartyPopper size={56} color="#f4a13a" />
             </motion.span>
             <span className="text-xs font-bold tracking-widest text-purple">NIVEAU SUPÉRIEUR</span>
             <h2 className="m-0 text-4xl font-extrabold text-ink">Niveau {level} !</h2>

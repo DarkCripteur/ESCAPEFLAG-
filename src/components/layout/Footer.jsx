@@ -1,4 +1,5 @@
 // [FOOTER] Bandeau de progression, affiché sur toutes les vues (comportement d'origine).
+import { CircleX, Lightbulb, Zap } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { useQuizGame } from '../../hooks/useQuizGame'
 
@@ -18,9 +19,9 @@ export function Footer() {
         <div className="bar"><i style={{ width: `${Math.min(100, (profile.xp / nextLevel) * 100)}%` }} /></div>
       </div>
       <div className="stats">
-        <span>◉ {errors} erreur{errors !== 1 ? 's' : ''}</span>
-        <span>☼ {hints} indice</span>
-        <span>⚡ Série x{profile.streak}</span>
+        <span><CircleX size={13} /> {errors} erreur{errors !== 1 ? 's' : ''}</span>
+        <span><Lightbulb size={13} /> {hints} indice</span>
+        <span><Zap size={13} /> Série x{profile.streak}</span>
       </div>
     </section>
   )

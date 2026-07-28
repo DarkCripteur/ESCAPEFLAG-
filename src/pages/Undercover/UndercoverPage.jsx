@@ -1,5 +1,6 @@
 // [UNDERCOVER] Jeu de déduction : mode local (pass-the-device) et mode en ligne
 // (salons partagés par code, polling toutes les 1.5s).
+import { CircleCheck, CircleDot, CircleX, Copy, Crown, Globe, Monitor, Skull, VenetianMask } from 'lucide-react'
 import { useUndercover } from '../../hooks/useUndercover'
 import { useToast } from '../../hooks/useToast'
 import { useFriends } from '../../hooks/useFriends'
@@ -41,8 +42,8 @@ export function UndercoverPage() {
         </div>
 
         <div className="auth-switch" style={{ marginBottom: '20px' }}>
-          <button type="button" className={ucMode === 'local' ? 'selected' : ''} onClick={() => { leaveOnlineRoom(); setUcMode('local') }}>🖥️ Mode Local</button>
-          <button type="button" className={ucMode === 'online' ? 'selected' : ''} onClick={() => setUcMode('online')}>🌐 Mode En Ligne</button>
+          <button type="button" className={ucMode === 'local' ? 'selected' : ''} onClick={() => { leaveOnlineRoom(); setUcMode('local') }} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Monitor size={14} /> Mode Local</button>
+          <button type="button" className={ucMode === 'online' ? 'selected' : ''} onClick={() => setUcMode('online')} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Globe size={14} /> Mode En Ligne</button>
         </div>
 
         {/* --- MODE EN LIGNE (ONLINE) --- */}
@@ -84,10 +85,10 @@ export function UndercoverPage() {
                 <div className="goal-card accent" style={{ marginBottom: '20px' }}>
                   <span className="eyebrow">CODE D'INVITATION</span>
                   <h2
-                    style={{ fontSize: '28px', margin: '5px 0', color: '#7253db', cursor: 'pointer' }}
+                    style={{ fontSize: '28px', margin: '5px 0', color: '#7253db', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
                     onClick={() => { navigator.clipboard.writeText(ucRoomId); notify('Code copié !') }}
                   >
-                    {ucRoomId} 📋
+                    {ucRoomId} <Copy size={22} />
                   </h2>
                   <p style={{ fontSize: '11px', color: '#a68c68' }}>Cliquez sur le code pour le copier et le partager avec vos amis.</p>
                 </div>
@@ -100,7 +101,7 @@ export function UndercoverPage() {
                       <span className="avatar" style={{ background: colors[idx % colors.length] }}>{player.name.slice(0, 1).toUpperCase()}</span>
                       <div>
                         <b>{player.name}</b>
-                        {player.isHost && <small style={{ color: '#ab843e' }}>👑 Hôte</small>}
+                        {player.isHost && <small style={{ color: '#ab843e', display: 'inline-flex', alignItems: 'center', gap: '3px' }}><Crown size={11} /> Hôte</small>}
                       </div>
                       {ucRoom.distributorId === player.id && (
                         <span className="pill" style={{ marginLeft: 'auto', background: '#eaf6ee', color: '#2f6b45' }}>Distributeur</span>
@@ -234,7 +235,7 @@ export function UndercoverPage() {
                 <div className="goal-card accent" style={{ margin: '20px auto', maxWidth: '380px', textAlign: 'center' }}>
                   <span className="eyebrow">VOTRE MOT SECRET</span>
                   <h2 style={{ fontSize: '28px', margin: '10px 0', color: '#ab843e' }}>
-                    {ucRoom.players.find((p) => p.id === getLocalPlayerId())?.role === 'mrwhite' ? '🕵️‍♂️ Vous êtes M. White !' : ucRoom.players.find((p) => p.id === getLocalPlayerId())?.word}
+                    {ucRoom.players.find((p) => p.id === getLocalPlayerId())?.role === 'mrwhite' ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}><VenetianMask size={24} /> Vous êtes M. White !</span> : ucRoom.players.find((p) => p.id === getLocalPlayerId())?.word}
                   </h2>
                   {ucRoom.players.find((p) => p.id === getLocalPlayerId())?.role === 'mrwhite' ? (
                     <p style={{ fontSize: '11px', color: '#a68c68' }}>Vous n'avez pas de mot secret. Écoutez attentivement les autres pour deviner le mot des Civils.</p>
@@ -252,7 +253,7 @@ export function UndercoverPage() {
                   </div>
                 ) : (
                   <div className="goal-card" style={{ background: '#eaf6ee', color: '#2f6b45', maxWidth: '380px', margin: '0 auto' }}>
-                    <p style={{ margin: 0 }}>✓ Votre indice a été soumis : <strong>{ucRoom.clues[getLocalPlayerId()]}</strong></p>
+                    <p style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}><CircleCheck size={14} /> Votre indice a été soumis : <strong>{ucRoom.clues[getLocalPlayerId()]}</strong></p>
                   </div>
                 )}
 
@@ -263,7 +264,7 @@ export function UndercoverPage() {
                       <span className="avatar" style={{ background: colors[idx % colors.length] }}>{p.name.slice(0, 1).toUpperCase()}</span>
                       <div>
                         <b>{p.name}</b>
-                        <small>{p.isEliminated ? 'Éliminé' : ucRoom.clues[p.id] ? '✓ Indice soumis' : 'En attente...'}</small>
+                        <small style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>{p.isEliminated ? 'Éliminé' : ucRoom.clues[p.id] ? <><CircleCheck size={11} /> Indice soumis</> : 'En attente...'}</small>
                       </div>
                     </div>
                   ))}
@@ -289,7 +290,7 @@ export function UndercoverPage() {
                   </div>
                 ) : (
                   <div className="goal-card" style={{ background: '#eaf6ee', color: '#2f6b45', maxWidth: '380px', margin: '0 auto 20px' }}>
-                    <p style={{ margin: 0 }}>✓ Indice soumis. En attente des autres joueurs...</p>
+                    <p style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}><CircleCheck size={14} /> Indice soumis. En attente des autres joueurs...</p>
                   </div>
                 )}
 
@@ -333,7 +334,7 @@ export function UndercoverPage() {
                   </div>
                 ) : (
                   <div className="goal-card" style={{ background: '#eaf6ee', color: '#2f6b45', textAlign: 'center', marginBottom: '20px' }}>
-                    <p style={{ margin: 0 }}>✓ Votre vote a été enregistré. En attente des autres votes ({Object.keys(ucRoom.votes).length} / {ucRoom.players.filter((p) => !p.isEliminated).length}).</p>
+                    <p style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}><CircleCheck size={14} /> Votre vote a été enregistré. En attente des autres votes ({Object.keys(ucRoom.votes).length} / {ucRoom.players.filter((p) => !p.isEliminated).length}).</p>
                   </div>
                 )}
               </div>
@@ -342,7 +343,7 @@ export function UndercoverPage() {
             {/* 6. RESULT PHASE */}
             {ucRoom.state === 'result' && (
               <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                <div className="escape-stars" style={{ fontSize: '32px' }}>👑</div>
+                <div className="escape-stars" style={{ display: 'flex', justifyContent: 'center' }}><Crown size={32} /></div>
                 <span className="eyebrow">FIN DE PARTIE</span>
                 <h1 style={{ fontSize: '28px', margin: '10px 0' }}>Victoire des {ucRoom.winner} !</h1>
 
@@ -354,7 +355,7 @@ export function UndercoverPage() {
                   <div style={{ marginTop: '15px', borderTop: '1px solid #efeadd', paddingTop: '10px' }}>
                     {ucRoom.players.map((p) => (
                       <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', margin: '5px 0' }}>
-                        <span>{p.name} {p.isEliminated && '💀'}</span>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>{p.name} {p.isEliminated && <Skull size={13} />}</span>
                         <strong style={{ textTransform: 'capitalize' }}>{p.role === 'civil' ? 'Civil' : p.role === 'undercover' ? 'Undercover' : 'M. White'}</strong>
                       </div>
                     ))}
@@ -441,7 +442,7 @@ export function UndercoverPage() {
                   <div className="goal-card accent" style={{ margin: '20px auto', maxWidth: '340px' }}>
                     <span className="eyebrow">VOTRE MOT SECRET</span>
                     <h2 style={{ fontSize: '28px', margin: '10px 0', color: '#ab843e' }}>
-                      {ucPlayers[ucRevealIndex]?.role === 'mrwhite' ? '🕵️‍♂️ Vous êtes M. White !' : ucPlayers[ucRevealIndex]?.word}
+                      {ucPlayers[ucRevealIndex]?.role === 'mrwhite' ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}><VenetianMask size={24} /> Vous êtes M. White !</span> : ucPlayers[ucRevealIndex]?.word}
                     </h2>
                     {ucPlayers[ucRevealIndex]?.role === 'mrwhite' ? (
                       <p style={{ fontSize: '12px', color: '#a68c68' }}>Vous n'avez pas de mot. Votre but est de deviner le mot des Civils sans vous faire démasquer.</p>
@@ -482,7 +483,7 @@ export function UndercoverPage() {
                       <span className="avatar" style={{ background: colors[idx % colors.length] }}>{player.name.slice(0, 1).toUpperCase()}</span>
                       <div>
                         <b>{player.name}</b>
-                        <small>{player.isEliminated ? '❌ Éliminé' : '🟢 En jeu'}</small>
+                        <small style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>{player.isEliminated ? <><CircleX size={11} /> Éliminé</> : <><CircleDot size={11} color="#3b8a5c" /> En jeu</>}</small>
                       </div>
                       {!player.isEliminated && <span className="pill subtle" style={{ marginLeft: 'auto' }}>Doit parler</span>}
                     </div>
@@ -519,7 +520,7 @@ export function UndercoverPage() {
 
             {ucState === 'result' && (
               <div style={{ textAlign: 'center', padding: '30px 10px' }}>
-                <div className="escape-stars" style={{ fontSize: '32px' }}>👑</div>
+                <div className="escape-stars" style={{ display: 'flex', justifyContent: 'center' }}><Crown size={32} /></div>
                 <span className="eyebrow" style={{ letterSpacing: '2px' }}>FIN DE PARTIE</span>
                 <h1 style={{ fontSize: '28px', margin: '15px 0' }}>Victoire des {ucWinner} !</h1>
 
@@ -630,7 +631,7 @@ export function UndercoverPage() {
         <div className="section-head"><div><span className="eyebrow">RÈGLES DU JEU</span><h2>Comment jouer</h2></div></div>
         <div className="info-block">
           {/* TODO(section 19): description du jeu Undercover à personnaliser. */}
-          <p>🕵️‍♂️ <b>Undercover</b> est un jeu de société de déduction et de bluff, à jouer entre 3 joueurs ou plus. Chacun reçoit un mot secret… sauf que tout le monde n'a pas exactement le même !</p>
+          <p style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}><VenetianMask size={15} style={{ flexShrink: 0, marginTop: '2px' }} /> <span><b>Undercover</b> est un jeu de société de déduction et de bluff, à jouer entre 3 joueurs ou plus. Chacun reçoit un mot secret… sauf que tout le monde n'a pas exactement le même !</span></p>
           <ul style={{ paddingLeft: '20px', marginTop: '10px' }}>
             <li><b>Civils</b> : la majorité du groupe, tous avec le même mot secret.</li>
             <li><b>Undercover</b> : reçoivent un mot proche mais différent — ils doivent décrire leur mot sans se trahir, en essayant de deviner le mot des Civils.</li>

@@ -10,10 +10,11 @@
 // flottante" demandé — GameStatusBar ne garde que l'info propre à la question en cours.
 import { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Icon } from '../ui/Icon'
+import { Lightbulb, Menu, Volume2, VolumeX, X } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { useTheme } from '../../hooks/useTheme'
 import { SuggestionModal } from './SuggestionModal'
+import { ThemeSwitch } from '../ui/ThemeSwitch'
 
 const navItems = [
   { to: '/', label: 'JOUER', end: true },
@@ -54,6 +55,25 @@ export function Header() {
           <span>ESCAPE<span>FLAG</span></span>
         </a>
 
+        <div className="top-actions">
+          {user && (
+            <button type="button" className="theme-toggle" onClick={() => setShowSuggestions(true)} aria-label="Envoyer une suggestion" title="Boîte à suggestions">
+              <Lightbulb size={18} />
+            </button>
+          )}
+          <ThemeSwitch theme={theme} onToggle={toggleTheme} />
+          <button className="sound" onClick={() => setSound((value) => !value)} aria-label="Son">
+            {sound ? <Volume2 size={20} /> : <VolumeX size={20} />}
+          </button>
+          {user && (
+            <NavLink to="/profil" className="profile">
+              <span className="avatar small">{user.avatar}</span>
+              <span className="online" />
+              <span className="profile-name">{user.name}</span>
+            </NavLink>
+          )}
+        </div>
+
         <button
           type="button"
           className="nav-toggle"
@@ -61,31 +81,17 @@ export function Header() {
           aria-label={menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
           aria-expanded={menuOpen}
         >
-          {menuOpen ? '✕' : '☰'}
+          {menuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
-
-        <div className="top-actions">
-          {user && (
-            <button type="button" className="theme-toggle" onClick={() => setShowSuggestions(true)} aria-label="Envoyer une suggestion" title="Boîte à suggestions">
-              💡
-            </button>
-          )}
-          <button type="button" className="theme-toggle" onClick={toggleTheme} aria-label="Changer de thème">
-            {theme === 'light' ? '☾' : '☀'}
-          </button>
-          <button className="sound" onClick={() => setSound((value) => !value)} aria-label="Son">
-            <Icon>{sound ? '♬' : '♪̸'}</Icon>
-          </button>
-          {user && (
-            <NavLink to="/profil" className="profile">
-              <span className="avatar small">{user.avatar}</span>
-              <span className="online" /> {user.name}
-            </NavLink>
-          )}
-        </div>
       </div>
 
-      <div className="nav-pill">
+      <div className="nav-row">
+        {/* [MOBILE] La pastille de statut disparaît en dessous de 860px : elle fait
+            doublon avec la barre d'onglets du bas + le tiroir hamburger, qui couvrent
+            déjà la navigation mobile. Reste affichée en desktop/tablette large, seule
+            navigation disponible à ces largeurs. `nav` est un frère (pas un enfant) de
+            `.room-chip` : la masquer sur mobile ne doit jamais cacher `nav` avec elle,
+            sans quoi le tiroir plein écran (position fixed) deviendrait inaccessible. */}
         <span className="room-chip">
           <span className={serverOnline ? 'live-dot' : 'offline-dot'} />
           SALLE CONNECTÉE <b>•</b> {players.length} JOUEUR{players.length !== 1 ? 'S' : ''}

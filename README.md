@@ -7,7 +7,7 @@ Application React/Vite avec API Express sécurisée et base PostgreSQL Supabase.
 1. Créez un projet sur [Supabase](https://supabase.com), puis exécutez **dans l'ordre** `supabase/migrations/001_initial_schema.sql` à `007_suggestions.sql` dans le SQL Editor (connexion par pseudo, amis, historique Undercover, Smash or Pass, bannissement, suggestions — voir plus bas). Pour Smash or Pass, si Supabase est configuré, un bucket de stockage public `smash-pass` est créé automatiquement au premier upload (droits du service role requis) ; sinon les images sont écrites dans `server/uploads/` et servies statiquement.
 2. Copiez `.env.example` vers `.env` et renseignez `SUPABASE_URL`, `SUPABASE_ANON_KEY` et `SUPABASE_SERVICE_ROLE_KEY`. Ne publiez jamais la clé `SERVICE_ROLE` dans le navigateur.
 3. Dans Supabase Auth, activez l’authentification e-mail (et Phone si souhaitée). Pour les tests locaux, désactivez la confirmation e-mail ou confirmez les e-mails créés.
-4. Pour la boîte à suggestions, créez un compte [Resend](https://resend.com) et renseignez `RESEND_API_KEY` dans `.env` (jamais codée en dur). Sans cette variable, les suggestions restent enregistrées mais aucun e-mail n'est envoyé.
+4. Pour la boîte à suggestions, créez un compte [Twilio](https://www.twilio.com) et renseignez `TWILIO_ACCOUNT_SID` et `TWILIO_AUTH_TOKEN` dans `.env` (jamais codées en dur). Sans ces variables, les suggestions restent enregistrées mais aucun message WhatsApp n'est envoyé.
 5. Lancez l’API et le client dans deux terminaux :
 
 ```powershell
@@ -43,13 +43,13 @@ Le cahier des charges laisse le choix entre un backend serverless ou une API Exp
 
 ### Backend (Render/Railway/Fly…)
 
-* Mêmes variables que `.env.example` : `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `PORT`, `CLIENT_URL`, `RESEND_API_KEY`, `MAIL_FROM`, `MAIL_TO`.
+* Mêmes variables que `.env.example` : `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `PORT`, `CLIENT_URL`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_FROM`, `SUGGESTION_WHATSAPP_TO`.
 * `CLIENT_URL` doit être l'URL Vercel exacte du frontend (accepte une liste séparée par des virgules si plusieurs origines doivent être autorisées — ex. domaine de prod + un domaine de preview connu à l'avance ; les URLs de preview Vercel générées à la volée par déploiement ne seront pas automatiquement autorisées par CORS).
 * **Important pour Smash or Pass (upload d'images)** : le repli local (`server/uploads/`) suppose un disque persistant entre les requêtes. Sur un hébergeur au système de fichiers éphémère (conteneurs recréés à chaque déploiement, fonctions serverless…), les photos uploadées localement seraient perdues au prochain redéploiement — configurez alors impérativement Supabase (le bucket `smash-pass` est créé automatiquement) plutôt que de compter sur le repli disque.
 
 ### Correspondance avec les variables d'exemple du cahier des charges
 
-Le cahier des charges (section 14) liste `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `JWT_SECRET` et `EMAIL_PROVIDER_KEY` à titre d'exemple générique. Ce projet ne les utilise pas telles quelles : le frontend ne parle jamais directement à Supabase (tout passe par l'API Express, donc pas de `VITE_SUPABASE_*` côté client), l'authentification est gérée par Supabase Auth (pas de `JWT_SECRET` maison à définir), et `EMAIL_PROVIDER_KEY` correspond à `RESEND_API_KEY` ici. Utilisez les noms de variables réels ci-dessus plutôt que de copier l'exemple du cahier des charges tel quel.
+Le cahier des charges (section 14) liste `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `JWT_SECRET` et `EMAIL_PROVIDER_KEY` à titre d'exemple générique. Ce projet ne les utilise pas telles quelles : le frontend ne parle jamais directement à Supabase (tout passe par l'API Express, donc pas de `VITE_SUPABASE_*` côté client), l'authentification est gérée par Supabase Auth (pas de `JWT_SECRET` maison à définir), et la notification de suggestion se fait par WhatsApp (`TWILIO_ACCOUNT_SID`/`TWILIO_AUTH_TOKEN`/`TWILIO_WHATSAPP_FROM`) plutôt que par e-mail. Utilisez les noms de variables réels ci-dessus plutôt que de copier l'exemple du cahier des charges tel quel.
 
 ---
 
@@ -174,14 +174,14 @@ Nouvel onglet **AMIS** dans la navigation : recherche instantanée par pseudo (`
 * Toujours aucun lien Admin dans la navigation joueur ; `/admin` redirige vers `/` pour tout compte connecté qui n'est ni `admin` ni `moderator`.
 * Testé de bout en bout côté API (accès refusé aux non-admins, recherche, ban/débannissement avec effet immédiat sur les jetons existants, changement de rôle réservé aux admins, auto-bannissement/auto-changement de rôle bloqués, modération photos/commentaires avec résolution du pseudo de l'auteur) et dans un navigateur réel (les 4 onglets, bannissement via l'UI, blocage de connexion du compte banni), sans erreur console.
 
-## Phase 7 — Boîte à suggestions + envoi e-mail
+## Phase 7 — Boîte à suggestions + envoi WhatsApp
 
 * Bouton 💡 dans le header (visible une fois connecté) ouvrant une modale de suggestion — pas de nouvel onglet de navigation, pour ne pas surcharger une barre déjà bien remplie.
-* **Toujours persisté** (table `suggestions`, migration `007_suggestions.sql`), qu'un e-mail parte ou non : `server/services/emailService.js` tente l'envoi via l'API **Resend** uniquement si `RESEND_API_KEY` est définie dans l'environnement (jamais codée en dur, comme demandé) ; en cas d'absence ou d'échec, la suggestion reste enregistrée et `emailed` passe à `false`, rien n'est perdu.
-* Destinataire configurable via `MAIL_TO` (défaut : `fustelamio2208@gmail.com`), expéditeur via `MAIL_FROM` — ni l'un ni l'autre n'est codé en dur, uniquement des variables d'environnement.
-* L'e-mail inclut aussi l'adresse IP et le navigateur (User-Agent) de l'auteur de la suggestion, en plus de son nom, son e-mail et la date/heure — extraits de la requête, non stockés en base (seul le message est persisté, comme avant).
+* **Toujours persisté** (table `suggestions`, migration `007_suggestions.sql`), qu'un message parte ou non : `server/services/whatsappService.js` tente l'envoi via l'API **Twilio** (canal WhatsApp) uniquement si `TWILIO_ACCOUNT_SID`/`TWILIO_AUTH_TOKEN` sont définies dans l'environnement (jamais codées en dur, comme demandé) ; en cas d'absence ou d'échec, la suggestion reste enregistrée et le champ `emailed` (nom historique, désigne désormais l'envoi WhatsApp — conservé tel quel pour éviter une migration Supabase) passe à `false`, rien n'est perdu.
+* Destinataire configurable via `SUGGESTION_WHATSAPP_TO` (défaut : `+221786840156`), expéditeur via `TWILIO_WHATSAPP_FROM` (numéro Twilio activé WhatsApp ; vide = sandbox WhatsApp partagé de Twilio, pratique pour tester) — aucun n'est codé en dur, uniquement des variables d'environnement.
+* Le message WhatsApp (nom de l'auteur, date/heure, suggestion) est envoyé au numéro configuré ; le texte complet reste de toute façon consultable dans l'onglet Suggestions de l'admin.
 * Nouvel onglet **Suggestions** dans la console admin pour consulter les messages reçus, avec leur statut d'envoi.
-* Testé de bout en bout côté API (rejet si non connecté, persistance sans clé Resend configurée, lecture admin, accès refusé aux non-admins) et dans un navigateur réel (ouverture de la modale, validation du message, fermeture après envoi, visibilité côté admin), sans erreur console.
+* Testé de bout en bout côté API (rejet si non connecté, persistance sans identifiants Twilio configurés, lecture admin, accès refusé aux non-admins) et dans un navigateur réel (ouverture de la modale, validation du message, fermeture après envoi, visibilité côté admin), sans erreur console.
 
 ## Phase 8 — Sélecteur téléphone international
 

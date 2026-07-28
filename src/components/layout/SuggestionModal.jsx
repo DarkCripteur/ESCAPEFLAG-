@@ -2,6 +2,7 @@
 // header — accessible depuis n'importe quel écran sans encombrer la navigation.
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { X } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { useToast } from '../../hooks/useToast'
 import { submitSuggestion } from '../../services/suggestionService'
@@ -51,7 +52,7 @@ export function SuggestionModal({ open, onClose }) {
           >
             <div className="section-head" style={{ marginBottom: '14px' }}>
               <div><span className="eyebrow">BOÎTE À SUGGESTIONS</span><h2 style={{ margin: '4px 0 0' }}>Une idée à nous soumettre ?</h2></div>
-              <button type="button" className="secondary small" onClick={onClose}>✕</button>
+              <button type="button" className="secondary small" onClick={onClose}><X size={14} /></button>
             </div>
             <p style={{ color: '#767890', fontSize: '13px', marginBottom: '14px' }}>
               Vos suggestions nous aident à améliorer Escape Flag. Votre message est transmis à l’équipe.

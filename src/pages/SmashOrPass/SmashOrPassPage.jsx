@@ -1,6 +1,7 @@
 // [SMASH OR PASS] Nouveau jeu (section 8) : upload de photos, pioche de cartes,
 // vote Smash/Pass avec commentaire optionnel.
 import { useRef } from 'react'
+import { Camera, Heart, Upload, X } from 'lucide-react'
 import { useSmashPassGame } from '../../hooks/useSmashPassGame'
 import { photoUrl } from '../../services/smashPassService'
 import { SwipeCard } from './SwipeCard'
@@ -32,8 +33,8 @@ export function SmashOrPassPage() {
               e.target.value = ''
             }}
           />
-          <button type="button" className="secondary" disabled={uploading} onClick={() => fileInputRef.current?.click()}>
-            {uploading ? 'Envoi en cours…' : '📤 Importer une photo (téléphone ou ordinateur)'}
+          <button type="button" className="secondary" disabled={uploading} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }} onClick={() => fileInputRef.current?.click()}>
+            {uploading ? 'Envoi en cours…' : <><Upload size={16} /> Importer une photo (téléphone ou ordinateur)</>}
           </button>
         </div>
 
@@ -57,23 +58,23 @@ export function SmashOrPassPage() {
                 type="button"
                 onClick={() => vote('pass')}
                 aria-label="Pass"
-                style={{ width: '64px', height: '64px', borderRadius: '50%', border: '1px solid #f4c6c6', background: '#fff0f1', color: '#d3564f', fontSize: '26px', cursor: 'pointer' }}
+                style={{ width: '64px', height: '64px', borderRadius: '50%', border: '1px solid #f4c6c6', background: '#fff0f1', color: '#d3564f', cursor: 'pointer', display: 'grid', placeItems: 'center' }}
               >
-                ✕
+                <X size={26} />
               </button>
               <button
                 type="button"
                 onClick={() => vote('smash')}
                 aria-label="Smash"
-                style={{ width: '64px', height: '64px', borderRadius: '50%', border: '1px solid #bfe4cb', background: '#eaf6ee', color: '#2f6b45', fontSize: '26px', cursor: 'pointer' }}
+                style={{ width: '64px', height: '64px', borderRadius: '50%', border: '1px solid #bfe4cb', background: '#eaf6ee', color: '#2f6b45', cursor: 'pointer', display: 'grid', placeItems: 'center' }}
               >
-                ❤
+                <Heart size={26} />
               </button>
             </div>
           </>
         ) : (
           <div className="escape-result" style={{ padding: '30px 20px' }}>
-            <div className="open-door">📸</div>
+            <div className="open-door" style={{ display: 'flex', justifyContent: 'center' }}><Camera size={56} /></div>
             <h1 style={{ fontSize: '20px' }}>Plus de cartes pour le moment</h1>
             <p>Revenez plus tard, ou importez une photo pour alimenter le jeu.</p>
             <button className="primary small" onClick={refreshFeed}>Actualiser</button>
@@ -85,10 +86,10 @@ export function SmashOrPassPage() {
         <div className="section-head"><div><span className="eyebrow">COMMENT JOUER</span><h2>Le principe</h2></div></div>
         <div className="info-block">
           {/* TODO(section 19): description du jeu Smash or Pass à personnaliser. */}
-          <p>📸 Importez une photo, puis parcourez celles des autres joueurs.</p>
+          <p style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Camera size={14} /> Importez une photo, puis parcourez celles des autres joueurs.</p>
           <ul style={{ paddingLeft: '20px', marginTop: '10px' }}>
-            <li>Glissez la carte à <b>droite</b> (ou appuyez sur ❤) pour <b>Smash</b>.</li>
-            <li>Glissez-la à <b>gauche</b> (ou appuyez sur ✕) pour <b>Pass</b>.</li>
+            <li>Glissez la carte à <b>droite</b> (ou appuyez sur <Heart size={12} style={{ verticalAlign: '-1px' }} />) pour <b>Smash</b>.</li>
+            <li>Glissez-la à <b>gauche</b> (ou appuyez sur <X size={12} style={{ verticalAlign: '-1px' }} />) pour <b>Pass</b>.</li>
             <li>Un commentaire est possible mais jamais obligatoire.</li>
           </ul>
           <p style={{ marginTop: '10px' }}>Vous ne votez jamais sur vos propres photos, et chaque carte ne repasse pas deux fois.</p>
@@ -100,7 +101,7 @@ export function SmashOrPassPage() {
             <div className="player" key={photo.id} style={{ height: 'auto', padding: '8px 0' }}>
               <img src={photoUrl(photo.imageUrl || photo.image_url)} alt="" style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover' }} />
               <div>
-                <b>❤ {photo.smashCount ?? 0} · ✕ {photo.passCount ?? 0}</b>
+                <b style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><Heart size={12} /> {photo.smashCount ?? 0} · <X size={12} /> {photo.passCount ?? 0}</b>
                 <small>{new Date(photo.createdAt || photo.created_at).toLocaleDateString('fr-FR')}</small>
               </div>
               <button type="button" className="secondary small" style={{ marginLeft: 'auto', color: '#d3564f', borderColor: '#f4c6c6' }} onClick={() => deleteMyPhoto(photo.id)}>

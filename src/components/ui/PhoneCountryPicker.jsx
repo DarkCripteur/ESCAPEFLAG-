@@ -1,6 +1,7 @@
 // [TÉLÉPHONE] Sélecteur pays/indicatif international (section 12) : tous les pays,
 // tous les indicatifs, drapeaux, recherche, détection automatique du pays si possible.
 import { useEffect, useRef, useState } from 'react'
+import { Globe } from 'lucide-react'
 import { countries } from '../../data/countries'
 import { countryFlagEmoji } from '../../utils/countryFlag'
 import { detectCountryFromLocale } from '../../utils/detectCountry'
@@ -62,7 +63,7 @@ export function PhoneCountryPicker({ value, onChange }) {
         aria-haspopup="listbox"
         aria-expanded={open}
       >
-        <span>{value ? countryFlagEmoji(value.iso2) : '🌐'}</span>
+        <span>{value ? countryFlagEmoji(value.iso2) : <Globe size={14} />}</span>
         <span>{value ? value.dialCode : 'Pays'}</span>
       </button>
 

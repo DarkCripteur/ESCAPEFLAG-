@@ -1,9 +1,10 @@
-// [SUGGESTIONS] Formulaire de suggestion (section 11) : toujours persisté, e-mail
-// envoyé en plus si RESEND_API_KEY est configurée.
+// [SUGGESTIONS] Formulaire de suggestion (section 11) : toujours persisté, message
+// WhatsApp envoyé en plus si Twilio est configuré (voir whatsappService.js). Remplace
+// l'envoi par e-mail — l'équipe reçoit désormais l'alerte directement sur WhatsApp.
 import crypto from 'crypto'
 import { configured, supabase } from '../services/supabaseClient.js'
 import { readJsonFile, writeJsonFile } from '../services/dataStore.js'
-import { emailConfigured, sendSuggestionEmail } from '../services/emailService.js'
+import { whatsappConfigured, sendSuggestionWhatsapp } from '../services/whatsappService.js'
 import { submitSuggestionSchema } from '../validators/suggestionValidators.js'
 
 export async function submitSuggestion(req, res, next) {
@@ -12,39 +13,37 @@ export async function submitSuggestion(req, res, next) {
     const userId = req.user.id
     const name = req.user.name || req.user.user_metadata?.name || 'Joueur'
     const email = req.user.email || req.user.user_metadata?.email || ''
-    // `req.ip` reflète X-Forwarded-For une fois `trust proxy` activé (app.js) — utile
-    // derrière un hébergeur avec reverse proxy (Render, Vercel...). Sinon repli sur
-    // l'en-tête brut, puis sur l'adresse socket directe.
-    const ip = req.ip || req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || ''
-    const userAgent = req.headers['user-agent'] || ''
     const createdAt = new Date().toISOString()
 
-    let emailed = false
+    // Nom de champ conservé tel quel (`emailed`) côté base de données pour éviter une
+    // migration Supabase : il représente désormais "notification envoyée" (WhatsApp),
+    // pas spécifiquement un e-mail.
+    let notified = false
     try {
-      const result = await sendSuggestionEmail({ name, email, message, ip, userAgent, createdAt })
-      emailed = result.sent
+      const result = await sendSuggestionWhatsapp({ name, message, createdAt })
+      notified = result.sent
     } catch (err) {
-      console.warn('Echec envoi e-mail de suggestion (persistée quand même) :', err.message)
+      console.warn('Echec envoi WhatsApp de suggestion (persistée quand même) :', err.message)
     }
 
     if (configured && supabase) {
       try {
         const { data, error } = await supabase
           .from('suggestions')
-          .insert({ user_id: userId, name, email, message, emailed })
+          .insert({ user_id: userId, name, email, message, emailed: notified })
           .select()
           .single()
-        if (!error && data) return res.status(201).json({ suggestion: data, emailSent: emailed, emailConfigured })
+        if (!error && data) return res.status(201).json({ suggestion: data, whatsappSent: notified, whatsappConfigured })
       } catch {
         // Repli local ci-dessous.
       }
     }
 
     const suggestions = readJsonFile('suggestions.json')
-    const suggestion = { id: crypto.randomUUID(), userId, name, email, message, emailed, createdAt }
+    const suggestion = { id: crypto.randomUUID(), userId, name, email, message, emailed: notified, createdAt }
     suggestions.push(suggestion)
     writeJsonFile('suggestions.json', suggestions)
-    res.status(201).json({ suggestion, emailSent: emailed, emailConfigured })
+    res.status(201).json({ suggestion, whatsappSent: notified, whatsappConfigured })
   } catch (error) {
     next(error)
   }

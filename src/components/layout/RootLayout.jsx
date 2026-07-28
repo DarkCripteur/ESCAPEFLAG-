@@ -5,6 +5,7 @@ import { GameStatusBar } from './GameStatusBar'
 import { AuthOverlay } from './AuthOverlay'
 import { GameInviteBanner } from './GameInviteBanner'
 import { LevelUpBanner } from './LevelUpBanner'
+import { BottomNav } from './BottomNav'
 import { useAuth } from '../../hooks/useAuth'
 import { useTheme } from '../../hooks/useTheme'
 import { useToast } from '../../hooks/useToast'
@@ -23,6 +24,7 @@ export function RootLayout() {
       <Footer />
       {toast && <div className="toast">{toast}</div>}
       {user && <LevelUpBanner />}
+      {user && <BottomNav />}
       {!user && <AuthOverlay />}
     </main>
   )
